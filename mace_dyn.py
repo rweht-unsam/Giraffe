@@ -1,7 +1,7 @@
 # Dinamica Molecular de Agua
 # ============================================
 import numpy as np
-import time
+import time,datetime
 # ============================================
 from ase import build
 from ase import units
@@ -19,34 +19,41 @@ from mace.calculators import mace_mp
 macemp = mace_mp(model="./MACE-matpes-r2scan-omat-ft.model",default_dtype='float32')
 calculator = macemp
 # ============================================d
-atoms = read('Slab_Water.extxyz')
+ahora0 = datetime.datetime.now()
+print(ahora0)
+# ============================================d
+atoms = read('More_Water_Inicial.extxyz')
 atoms.pbc=[ 1,1,1 ] 
 atoms.calc = macemp
 # ============================================
 fijos = np.array([], dtype=int)
 for atom in atoms:
-    if (atom.position[2] > -1.8525 and atom.position[2] < 1.8625):
+    if (atom.position[2] > 33.335 or atom.position[2] < 1.7850):
         fijos = np.append(fijos,int(atom.index))
 atoms.set_constraint(FixAtoms(fijos))
 # ============================================d
 # Initialize velocities.
 T_init = 300  # Initial temperature in K
-MaxwellBoltzmannDistribution(atoms, T_init * units.kB)
+#MaxwellBoltzmannDistribution(atoms, T_init * units.kB)
 # ============================================d
 # Set up the Langevin dynamics engine for NVT ensemble.
-dyn = Langevin(atoms, 0.5 * units.fs, T_init * units.kB, 4.0)
+dyn = Langevin(atoms, 1.0 * units.fs, T_init * units.kB, 4.0)
 # ============================================d
 # Define wrap and output
 def wrap_atoms(a=atoms):
     a.wrap()
 dyn.attach(wrap_atoms,interval=10)
-trajectory_file = "Slab_Water.extxyz"
-dyn.attach(lambda: write(trajectory_file, atoms, append=True), interval=500)
-dyn.attach(MDLogger(dyn, atoms, 'Slab_Water.log', header=False, stress=False,
-           peratom=False, mode="a"), interval=500)
+trajectory_file = "More_Water.extxyz"
+dyn.attach(lambda: write(trajectory_file, atoms, append=True), interval=100)
+dyn.attach(MDLogger(dyn, atoms, 'More_Water.log', header=False, stress=False,
+           peratom=False, mode="a"), interval=100)
 # Correr la dinámica
-n_steps =  100000 # Number of steps to run
+n_steps =  1000   # Number of steps to run
 dyn.run(n_steps)
-write('CONTCAR_Slab_Water.vasp', atoms)
+write('More_Water_Test.extxyz', atoms)
 # Fin dinámica
+# ============================================d
+ahora1 = datetime.datetime.now()
+print(ahora1)
+print(ahora1-ahora0)
 # ============================================d
