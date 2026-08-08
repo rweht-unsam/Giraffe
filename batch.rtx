@@ -1,0 +1,22 @@
+#!/bin/bash
+#SBATCH --job-name=total_2_rtx
+#SBATCH --output=total_2_rtx.out
+#SBATCH --error=total_2_rtx.err
+##SBATCH --exclusive
+
+# Elegir modelo de GPU
+##SBATCH --gres=gpu:t4:1
+##SBATCH --gres=gpu:a10g:1
+##SBATCH --gres=gpu:l4:1
+##SBATCH --gres=gpu:l40s:1
+#SBATCH --gres=gpu:rtxproserver6000:1
+
+eval "$(/fsx/cnea/apps/bin/micromamba shell hook --shell bash)"
+micromamba activate /fsx/cnea/envs/mliap
+
+START_TIME=$(date +%s)
+python -W ignore mace_dyn.py
+END_TIME=$(date +%s)
+
+DURATION=$((END_TIME - START_TIME))
+echo "Walltime: $DURATION segundos"

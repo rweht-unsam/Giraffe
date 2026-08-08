@@ -22,8 +22,8 @@ calculator = macemp
 ahora0 = datetime.datetime.now()
 print(ahora0)
 # ============================================d
-atoms = read('Chica.xyz')
-atoms.cell = [ 38.0   , 32.0   ,120.00  ]
+atoms = read('POSCAR_rel.71.vasp')
+#atoms.cell = [ 38.0   , 32.0   ,120.00  ]
 atoms.pbc=[ 1,1,1 ] 
 atoms.calc = macemp
 # ============================================
@@ -35,7 +35,7 @@ atoms.calc = macemp
 # ============================================d
 # Initialize velocities.
 T_init = 300  # Initial temperature in K
-#MaxwellBoltzmannDistribution(atoms, T_init * units.kB)
+MaxwellBoltzmannDistribution(atoms, T_init * units.kB)
 # ============================================d
 # Set up the Langevin dynamics engine for NVT ensemble.
 dyn = Langevin(atoms, 1.0 * units.fs, T_init * units.kB, 4.0)
@@ -44,14 +44,14 @@ dyn = Langevin(atoms, 1.0 * units.fs, T_init * units.kB, 4.0)
 def wrap_atoms(a=atoms):
     a.wrap()
 dyn.attach(wrap_atoms,interval=10)
-trajectory_file = "GB47_WAT.extxyz"
-dyn.attach(lambda: write(trajectory_file, atoms, append=True), interval=100)
-dyn.attach(MDLogger(dyn, atoms, 'GB47_WAT.log', header=False, stress=False,
-           peratom=False, mode="a"), interval=100)
+trajectory_file = "Rel_71_traj.extxyz"
+dyn.attach(lambda: write(trajectory_file, atoms, append=True), interval=200)
+dyn.attach(MDLogger(dyn, atoms, 'Rel_71.log', header=False, stress=False,
+           peratom=False, mode="a"), interval=200)
 # Correr la dinámica
-n_steps =  1000   # Number of steps to run
+n_steps = 200000  # Number of steps to run
 dyn.run(n_steps)
-write('GB47_WAT_final.extxyz', atoms)
+write('Rel_71_Final.extxyz', atoms)
 # Fin dinámica
 # ============================================d
 ahora1 = datetime.datetime.now()
